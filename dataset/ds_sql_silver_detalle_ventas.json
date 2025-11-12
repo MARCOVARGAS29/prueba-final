@@ -1,0 +1,59 @@
+{
+	"name": "ds_sql_silver_detalle_ventas",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql_ventas_examen",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Silver"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "order_number",
+				"type": "nvarchar"
+			},
+			{
+				"name": "product_key",
+				"type": "nvarchar"
+			},
+			{
+				"name": "customer_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "order_date",
+				"type": "date"
+			},
+			{
+				"name": "ship_date",
+				"type": "date"
+			},
+			{
+				"name": "sales",
+				"type": "decimal",
+				"precision": 10,
+				"scale": 2
+			},
+			{
+				"name": "quantity",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "price",
+				"type": "decimal",
+				"precision": 10,
+				"scale": 2
+			}
+		],
+		"typeProperties": {
+			"schema": "silver",
+			"table": "detalle_ventas"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

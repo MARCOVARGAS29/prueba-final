@@ -1,0 +1,29 @@
+{
+	"name": "zds_sql_clientes_location",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql_ventas_examen",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Bronze"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "CID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "CNTRY",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "bronze",
+			"table": "Clientes_location"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

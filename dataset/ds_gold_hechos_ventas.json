@@ -1,0 +1,81 @@
+{
+	"name": "ds_gold_hechos_ventas",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql_ventas_examen",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Gold"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id_venta",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "order_number",
+				"type": "nvarchar"
+			},
+			{
+				"name": "sales",
+				"type": "decimal",
+				"precision": 10,
+				"scale": 2
+			},
+			{
+				"name": "quantity",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "price",
+				"type": "decimal",
+				"precision": 10,
+				"scale": 2
+			},
+			{
+				"name": "product_key",
+				"type": "nvarchar"
+			},
+			{
+				"name": "customer_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "id_cliente",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "first_name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "last_name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "birthdate",
+				"type": "date"
+			},
+			{
+				"name": "gender",
+				"type": "nvarchar"
+			},
+			{
+				"name": "country",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "gold",
+			"table": "hechos_ventas"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,55 @@
+{
+	"name": "ds_sql_silver_productos",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql_ventas_examen",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Silver"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "prd_id",
+				"type": "nvarchar"
+			},
+			{
+				"name": "prd_key",
+				"type": "nvarchar"
+			},
+			{
+				"name": "prd_nm",
+				"type": "nvarchar"
+			},
+			{
+				"name": "prd_cost",
+				"type": "decimal",
+				"precision": 10,
+				"scale": 2
+			},
+			{
+				"name": "prd_line",
+				"type": "nvarchar"
+			},
+			{
+				"name": "category",
+				"type": "nvarchar"
+			},
+			{
+				"name": "subcategory",
+				"type": "nvarchar"
+			},
+			{
+				"name": "maintenance",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "silver",
+			"table": "productos"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

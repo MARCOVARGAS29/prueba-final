@@ -1,0 +1,45 @@
+{
+	"name": "ds_gold_dim_fecha",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql_ventas_examen",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Gold"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id_fecha",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "fecha",
+				"type": "date"
+			},
+			{
+				"name": "anio",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "mes",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "dia",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "gold",
+			"table": "dim_fecha"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,36 @@
+{
+	"name": "Clientes_Location_csv",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sa_ventas_examen",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Bronze"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Clientes_location.csv",
+				"container": "ventasexamen"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "CID",
+				"type": "String"
+			},
+			{
+				"name": "CNTRY",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,50 @@
+{
+	"name": "ds_sql_silver_clientes",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql_ventas_examen",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Silver"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "cst_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "cst_firstname",
+				"type": "nvarchar"
+			},
+			{
+				"name": "cst_lastname",
+				"type": "nvarchar"
+			},
+			{
+				"name": "cst_marital_status",
+				"type": "nvarchar"
+			},
+			{
+				"name": "birthdate",
+				"type": "date"
+			},
+			{
+				"name": "gender",
+				"type": "nvarchar"
+			},
+			{
+				"name": "country",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "silver",
+			"table": "clientes"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

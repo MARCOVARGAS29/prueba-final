@@ -1,0 +1,122 @@
+{
+	"name": "df_gold_dim_fecha",
+	"properties": {
+		"folder": {
+			"name": "Gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_silver_detalle_ventas",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_sql_silver_detalle_ventas",
+						"type": "DatasetReference"
+					},
+					"name": "source2"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_gold_dim_fecha",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "union1"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          order_number as string,",
+				"          product_key as string,",
+				"          customer_id as integer,",
+				"          order_date as date,",
+				"          ship_date as date,",
+				"          sales as decimal(10,2),",
+				"          quantity as integer,",
+				"          price as decimal(10,2)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source(output(",
+				"          order_number as string,",
+				"          product_key as string,",
+				"          customer_id as integer,",
+				"          order_date as date,",
+				"          ship_date as date,",
+				"          sales as decimal(10,2),",
+				"          quantity as integer,",
+				"          price as decimal(10,2)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source2",
+				"source1 select(mapColumn(",
+				"          fecha = order_date",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"union1 aggregate(groupBy(fecha),",
+				"     each(match(name!='fecha'), $$ = first($$))) ~> aggregate1",
+				"select1, select2 union(byName: true)~> union1",
+				"source2 select(mapColumn(",
+				"          fecha = ship_date",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"aggregate1 derive(anio = year(fecha),",
+				"          mes = month(fecha),",
+				"          dia = dayOfMonth(fecha)) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_fecha as integer,",
+				"          fecha as date,",
+				"          anio as integer,",
+				"          mes as integer,",
+				"          dia as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          fecha,",
+				"          anio,",
+				"          mes,",
+				"          dia",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

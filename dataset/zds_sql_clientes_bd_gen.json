@@ -1,0 +1,33 @@
+{
+	"name": "zds_sql_clientes_bd_gen",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql_ventas_examen",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Bronze"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "CID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "BDATE",
+				"type": "nvarchar"
+			},
+			{
+				"name": "GEN",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "bronze",
+			"table": "Clientes_BD-GEN"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

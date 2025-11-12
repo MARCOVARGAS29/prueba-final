@@ -1,0 +1,94 @@
+{
+	"name": "df_silver_detalles_ventas",
+	"properties": {
+		"folder": {
+			"name": "Silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "zds_sql_detalles_ventas",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_silver_detalle_ventas",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "cast1"
+				},
+				{
+					"name": "aggregate1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          sls_ord_num as string,",
+				"          sls_prd_key as string,",
+				"          sls_cust_id as string,",
+				"          sls_order_dt as string,",
+				"          sls_ship_dt as string,",
+				"          sls_sales as string,",
+				"          sls_quantity as string,",
+				"          sls_price as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 cast(output(",
+				"          sls_cust_id as integer,",
+				"          sls_order_dt as date 'yyyyMMdd',",
+				"          sls_ship_dt as date 'yyyyMMdd',",
+				"          sls_sales as decimal(10,0),",
+				"          sls_quantity as integer,",
+				"          sls_price as decimal(10,0)",
+				"     ),",
+				"     errors: true) ~> cast1",
+				"cast1 aggregate(groupBy(sls_ord_num),",
+				"     each(match(name!='sls_ord_num'), $$ = first($$))) ~> aggregate1",
+				"aggregate1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          order_number as string,",
+				"          product_key as string,",
+				"          customer_id as integer,",
+				"          order_date as date,",
+				"          ship_date as date,",
+				"          sales as decimal(10,2),",
+				"          quantity as integer,",
+				"          price as decimal(10,2)",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          order_number = sls_ord_num,",
+				"          product_key = sls_prd_key,",
+				"          customer_id = sls_cust_id,",
+				"          order_date = sls_order_dt,",
+				"          ship_date = sls_ship_dt,",
+				"          sales = sls_sales,",
+				"          quantity = sls_quantity,",
+				"          price = sls_price",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

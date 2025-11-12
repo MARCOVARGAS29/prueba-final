@@ -1,0 +1,40 @@
+{
+	"name": "clientes_bd_gen_csv",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sa_ventas_examen",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Bronze"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Clientes_BD-GEN.csv",
+				"container": "ventasexamen"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "CID",
+				"type": "String"
+			},
+			{
+				"name": "BDATE",
+				"type": "String"
+			},
+			{
+				"name": "GEN",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

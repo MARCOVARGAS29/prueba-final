@@ -1,0 +1,115 @@
+{
+	"name": "df_gold_hechos_ventas",
+	"properties": {
+		"folder": {
+			"name": "Gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_silver_detalle_ventas",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_gold_dim_cliente",
+						"type": "DatasetReference"
+					},
+					"name": "source2"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_gold_hechos_ventas",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "join1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          order_number as string,",
+				"          product_key as string,",
+				"          customer_id as integer,",
+				"          order_date as date,",
+				"          ship_date as date,",
+				"          sales as decimal(10,2),",
+				"          quantity as integer,",
+				"          price as decimal(10,2)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source(output(",
+				"          id_cliente as integer,",
+				"          cst_id as integer,",
+				"          cst_firstname as string,",
+				"          cst_lastname as string,",
+				"          cst_marital_status as string,",
+				"          birthdate as date,",
+				"          gender as string,",
+				"          country as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source2",
+				"source1, source2 join(customer_id == cst_id,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_venta as integer,",
+				"          order_number as string,",
+				"          sales as decimal(10,2),",
+				"          quantity as integer,",
+				"          price as decimal(10,2),",
+				"          product_key as string,",
+				"          customer_id as integer,",
+				"          id_cliente as integer,",
+				"          first_name as string,",
+				"          last_name as string,",
+				"          birthdate as date,",
+				"          gender as string,",
+				"          country as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          order_number,",
+				"          sales,",
+				"          quantity,",
+				"          price,",
+				"          product_key,",
+				"          customer_id,",
+				"          id_cliente,",
+				"          first_name = cst_firstname,",
+				"          last_name = cst_lastname,",
+				"          birthdate,",
+				"          gender,",
+				"          country",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

@@ -1,0 +1,150 @@
+{
+	"name": "df_silver_productos",
+	"properties": {
+		"folder": {
+			"name": "Silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "zds_sql_productos",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "zds_sql_productos_cat_mant",
+						"type": "DatasetReference"
+					},
+					"name": "source2"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_silver_productos",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "cast1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "sort1"
+				},
+				{
+					"name": "aggregate1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          prd_id as string,",
+				"          prd_key as string,",
+				"          prd_nm as string,",
+				"          prd_cost as string,",
+				"          prd_line as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source(output(",
+				"          ID as string,",
+				"          CAT as string,",
+				"          SUBCAT as string,",
+				"          MAINTENANCE as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source2",
+				"source2 derive(ID = replace(replace(ID, \" \", \"-\"), \"_\", \"-\")) ~> derivedColumn1",
+				"source1 derive(prd_key = substring(prd_key, 1, 5),",
+				"          prd_cost = iif(isNull(prd_cost), '0.0', prd_cost)) ~> derivedColumn2",
+				"derivedColumn2 cast(output(",
+				"          prd_cost as decimal(10,0)",
+				"     ),",
+				"     errors: true) ~> cast1",
+				"derivedColumn1 select(mapColumn(",
+				"          prd_key = ID,",
+				"          CAT,",
+				"          SUBCAT,",
+				"          MAINTENANCE",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"cast1, select1 join(derivedColumn2@prd_key == select1@prd_key,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1 select(mapColumn(",
+				"          prd_id,",
+				"          prd_key = derivedColumn2@prd_key,",
+				"          prd_nm,",
+				"          prd_cost,",
+				"          prd_line,",
+				"          CAT,",
+				"          SUBCAT,",
+				"          MAINTENANCE",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select2 sort(asc(prd_id, true)) ~> sort1",
+				"sort1 aggregate(groupBy(prd_id),",
+				"     each(match(name!='prd_id'), $$ = first($$))) ~> aggregate1",
+				"aggregate1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          prd_id as string,",
+				"          prd_key as string,",
+				"          prd_nm as string,",
+				"          prd_cost as decimal(10,2),",
+				"          prd_line as string,",
+				"          category as string,",
+				"          subcategory as string,",
+				"          maintenance as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          prd_id,",
+				"          prd_nm,",
+				"          prd_key,",
+				"          prd_cost,",
+				"          prd_line,",
+				"          category = CAT,",
+				"          subcategory = SUBCAT,",
+				"          maintenance = MAINTENANCE",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

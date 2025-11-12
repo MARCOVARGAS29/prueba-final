@@ -1,0 +1,212 @@
+{
+	"name": "df_silver_clientes",
+	"properties": {
+		"folder": {
+			"name": "Silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "zds_sql_clientes",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "zds_sql_clientes_bd_gen",
+						"type": "DatasetReference"
+					},
+					"name": "source2"
+				},
+				{
+					"dataset": {
+						"referenceName": "zds_sql_clientes_location",
+						"type": "DatasetReference"
+					},
+					"name": "source3"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_silver_clientes",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select3"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "select4"
+				},
+				{
+					"name": "join2"
+				},
+				{
+					"name": "cast1"
+				},
+				{
+					"name": "cast2"
+				},
+				{
+					"name": "cast3"
+				},
+				{
+					"name": "select5"
+				},
+				{
+					"name": "sort1"
+				},
+				{
+					"name": "aggregate1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          cst_id as string,",
+				"          cst_key as string,",
+				"          cst_firstname as string,",
+				"          cst_lastname as string,",
+				"          cst_marital_status as string,",
+				"          cst_gndr as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source(output(",
+				"          CID as string,",
+				"          BDATE as string,",
+				"          GEN as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source2",
+				"source(output(",
+				"          CID as string,",
+				"          CNTRY as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source3",
+				"cast3 select(mapColumn(",
+				"          cst_id,",
+				"          cst_firstname,",
+				"          cst_lastname,",
+				"          cst_marital_status,",
+				"          cst_gndr",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"source2 select(mapColumn(",
+				"          CID,",
+				"          BDATE",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select2 derive(cst_id = substring(CID, 9, length(CID))) ~> derivedColumn1",
+				"cast2 select(mapColumn(",
+				"          BDATE,",
+				"          cst_id",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select3",
+				"select1, select3 join(select1@cst_id == select3@cst_id,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"source3 derive(cst_id = substring(CID, 7, length(CID))) ~> derivedColumn2",
+				"cast1 select(mapColumn(",
+				"          CNTRY,",
+				"          cst_id",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select4",
+				"join1, select4 join(select3@cst_id == select4@cst_id,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join2",
+				"derivedColumn2 cast(output(",
+				"          cst_id as integer",
+				"     ),",
+				"     errors: true) ~> cast1",
+				"derivedColumn1 cast(output(",
+				"          BDATE as date 'yyyy-MM-dd',",
+				"          cst_id as integer",
+				"     ),",
+				"     errors: true) ~> cast2",
+				"source1 cast(output(",
+				"          cst_id as integer",
+				"     ),",
+				"     errors: true) ~> cast3",
+				"join2 select(mapColumn(",
+				"          cst_id = select1@cst_id,",
+				"          cst_firstname,",
+				"          cst_lastname,",
+				"          cst_marital_status,",
+				"          cst_gndr,",
+				"          BDATE,",
+				"          CNTRY",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select5",
+				"select5 sort(asc(cst_id, true)) ~> sort1",
+				"sort1 aggregate(groupBy(cst_id),",
+				"     each(match(name!='cst_id'), $$ = first($$))) ~> aggregate1",
+				"aggregate1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          cst_id as integer,",
+				"          cst_firstname as string,",
+				"          cst_lastname as string,",
+				"          cst_marital_status as string,",
+				"          birthdate as date,",
+				"          gender as string,",
+				"          country as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          cst_id,",
+				"          cst_firstname,",
+				"          cst_lastname,",
+				"          cst_marital_status,",
+				"          birthdate = BDATE,",
+				"          gender = cst_gndr,",
+				"          country = CNTRY",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
